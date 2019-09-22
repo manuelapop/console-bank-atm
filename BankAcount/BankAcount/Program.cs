@@ -42,7 +42,8 @@ namespace BankAccount
             Console.WriteLine("| 1. Check balance           |");
             Console.WriteLine("| 2. Deposit                 |");
             Console.WriteLine("| 3. Withdraw                |");
-            Console.WriteLine("| 4. Logout                  |");
+            Console.WriteLine("| 4. View Transactions       |");
+            Console.WriteLine("| 5. Logout                  |");
             Console.WriteLine("|                            |");
             Console.WriteLine(" ---------------------------");
             Console.Write("Enter your option: ");
@@ -87,6 +88,7 @@ namespace BankAccount
                     var latestAccountAmt = account.AmountLatest;
                     var amount = latestAccountAmt + depositAmt;
                     account.AmountLatest = amount;
+                    account.Transactions.Add(String.Format("Deposit of {0}{1}", depositAmt, cur));
                     CacheHelper.SaveTocache("accountInfo", accounts, new DateTime(2100, 01, 01));
                     writeLn = String.Format("You have successfully deposited {1}{0} \n", depositAmt, cur);
                     Console.Write(writeLn);
@@ -100,6 +102,20 @@ namespace BankAccount
             else
             {
                 Console.WriteLine("Invalid deposit amount. Try again.");
+            }
+        }
+
+        private static void transactions()
+        {
+            List<BackAcountInfo> accounts = CacheHelper.GetFromCache<List<BackAcountInfo>>("accountInfo");
+            var account = accounts.Where(x => x.acountNumber == userName).FirstOrDefault();
+            if (account != null)
+            {
+                Console.WriteLine("Transaction History:");
+                foreach (var tran in account.Transactions)
+                {
+                    Console.WriteLine(tran);
+                }
             }
         }
 
@@ -140,6 +156,7 @@ namespace BankAccount
                     {
                         var amount = latestAccountAmt - withdrawAmt;
                         account.AmountLatest = amount;
+                        account.Transactions.Add(String.Format("Withdrawal of {0}{1}", withdrawAmt, cur));
                         writeLn = String.Format("Please collect your money. \n");
                         CacheHelper.SaveTocache("accountInfo", accounts, new DateTime(2100, 01, 01));
                         printNewBalance(amount);
@@ -296,6 +313,9 @@ namespace BankAccount
                                                 withdraw();
                                                 break;
                                             case 4:
+                                                transactions();
+                                                break;
+                                            case 5:
                                                 Console.WriteLine("You have succesfully logout.");
                                                 break;
                                             default:
@@ -304,7 +324,7 @@ namespace BankAccount
                                         }
                                     }
 
-                                } while (menu2 != 4);
+                                } while (menu2 != 5);
                             }
                             else
                             {
